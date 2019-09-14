@@ -3,6 +3,7 @@ package collector
 import (
 	"fmt"
 	"math"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -10,6 +11,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 )
+
+var durationRegex *regexp.Regexp
+var durationParts [5]time.Duration
+
+func init() {
+	durationRegex = regexp.MustCompile(`(?:(\d*)w)?(?:(\d*)d)?(?:(\d*)h)?(?:(\d*)m)?(?:(\d*)s)?`)
+	durationParts = [5]time.Duration{time.Hour * 168, time.Hour * 24, time.Hour, time.Minute, time.Second}
+}
 
 func metricStringCleanup(in string) string {
 	return strings.Replace(in, "-", "_", -1)
@@ -50,7 +59,7 @@ func splitStringToFloats(metric string) (float64, float64, error) {
 func parseDuration(duration string) (float64, error) {
 	var u time.Duration
 
-	reMatch := uptimeRegex.FindAllStringSubmatch(duration, -1)
+	reMatch := durationRegex.FindAllStringSubmatch(duration, -1)
 
 	// should get one and only one match back on the regex
 	if len(reMatch) != 1 {
@@ -67,9 +76,23 @@ func parseDuration(duration string) (float64, error) {
 					}).Error("error parsing duration field value")
 					return float64(0), err
 				}
-				u += time.Duration(v) * uptimeParts[i-1]
+				u += time.Duration(v) * durationParts[i-1]
 			}
 		}
 	}
 	return u.Seconds(), nil
+}
+
+func parseDatetime(datetime string) (time.Time, error) {
+	t, err := time.Parse("Jan/02/2006 15:04:05", datetime)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"datetime": datetime,
+			"value":    t,
+			"error":    err,
+		}).Error("error parsing datetime field value")
+		return time.Time{}, err
+	}
+
+	return t, nil
 }

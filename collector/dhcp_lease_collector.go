@@ -16,8 +16,8 @@ type dhcpLeaseCollector struct {
 func (c *dhcpLeaseCollector) init() {
 	c.props = []string{"active-mac-address", "status", "expires-after", "active-address", "host-name"}
 
-	labelNames := []string{"name", "address", "activemacaddress", "status", "expiresafter", "activeaddress", "hostname"}
-	c.descriptions = description("dhcp", "leases_metrics", "number of metrics", labelNames)
+	labelNames := []string{"name", "address", "active_mac_address", "status", "expires_after", "active_address", "hostname"}
+	c.descriptions = description("dhcp", "leases_info", "DHCP lease info", labelNames)
 
 }
 
@@ -76,5 +76,5 @@ func (c *dhcpLeaseCollector) collectMetric(ctx *collectorContext, re *proto.Sent
 	activeaddress := re.Map["active-address"]
 	hostname := re.Map["host-name"]
 
-	ctx.ch <- prometheus.MustNewConstMetric(c.descriptions, prometheus.CounterValue, v, ctx.device.Name, ctx.device.Address, activemacaddress, status, strconv.FormatFloat(f, 'f', 0, 64), activeaddress, hostname)
+	ctx.ch <- prometheus.MustNewConstMetric(c.descriptions, prometheus.GaugeValue, v, ctx.device.Name, ctx.device.Address, activemacaddress, status, strconv.FormatFloat(f, 'f', 0, 64), activeaddress, hostname)
 }

@@ -1,23 +1,12 @@
 package collector
 
 import (
-	"regexp"
-	"strconv"
-	"strings"
-	"time"
-
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/routeros.v2/proto"
+	"strconv"
+	"strings"
 )
-
-var uptimeRegex *regexp.Regexp
-var uptimeParts [5]time.Duration
-
-func init() {
-	uptimeRegex = regexp.MustCompile(`(?:(\d*)w)?(?:(\d*)d)?(?:(\d*)h)?(?:(\d*)m)?(?:(\d*)s)?`)
-	uptimeParts = [5]time.Duration{time.Hour * 168, time.Hour * 24, time.Hour, time.Minute, time.Second}
-}
 
 type resourceCollector struct {
 	props        []string
@@ -35,7 +24,7 @@ func (c *resourceCollector) init() {
 
 	labelNames := []string{"name", "address", "boardname", "version"}
 	c.descriptions = make(map[string]*prometheus.Desc)
-	for _, p := range c.props {
+	for _, p := range c.props[:6] {
 		c.descriptions[p] = descriptionForPropertyName("system", p, labelNames)
 	}
 }
@@ -73,12 +62,16 @@ func (c *resourceCollector) fetch(ctx *collectorContext) ([]*proto.Sentence, err
 }
 
 func (c *resourceCollector) collectForStat(re *proto.Sentence, ctx *collectorContext) {
-	for _, p := range c.props[:6] {
-		c.collectMetricForProperty(p, re, ctx)
+	for _, p := range c.props[:5] {
+		c.collectMetricForProperty(p, prometheus.GaugeValue, re, ctx)
+	}
+
+	for _, p := range c.props[5:6] {
+		c.collectMetricForProperty(p, prometheus.CounterValue, re, ctx)
 	}
 }
 
-func (c *resourceCollector) collectMetricForProperty(property string, re *proto.Sentence, ctx *collectorContext) {
+func (c *resourceCollector) collectMetricForProperty(property string, valueType prometheus.ValueType, re *proto.Sentence, ctx *collectorContext) {
 	var v float64
 	var err error
 
@@ -102,5 +95,5 @@ func (c *resourceCollector) collectMetricForProperty(property string, re *proto.
 	}
 
 	desc := c.descriptions[property]
-	ctx.ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, v, ctx.device.Name, ctx.device.Address, boardname, version)
+	ctx.ch <- prometheus.MustNewConstMetric(desc, valueType, v, ctx.device.Name, ctx.device.Address, boardname, version)
 }

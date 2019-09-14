@@ -50,7 +50,7 @@ func (c *interfaceCollector) collect(ctx *collectorContext) error {
 }
 
 func (c *interfaceCollector) fetch(ctx *collectorContext) ([]*proto.Sentence, error) {
-	reply, err := ctx.client.Run("/interface/print", "?disabled=false", "?running=true", "=.proplist="+strings.Join(c.props, ","))
+	reply, err := ctx.client.Run("/interface/print", "?disabled=false", "=.proplist="+strings.Join(c.props, ","))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"device": ctx.device.Name,

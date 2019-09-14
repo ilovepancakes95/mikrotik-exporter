@@ -11,10 +11,9 @@ devices:
 features:
   bgp: true
   dhcp: true
-  dhcpv6: true
-  dhcpl: true
+  dhcp-leases: true
   routes: true
-  pools: true
+  pool: true
   optics: true
-  wlansta: true
-  wlanif: true
+  wlan-stations: true
+  wlan-interfaces: true

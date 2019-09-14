@@ -8,29 +8,29 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type poolCollector struct {
+type poolv6Collector struct {
 	usedCountDesc *prometheus.Desc
 }
 
-func (c *poolCollector) init() {
+func (c *poolv6Collector) init() {
 	const prefix = "ip_pool"
 
 	labelNames := []string{"name", "address", "pool"}
-	c.usedCountDesc = description(prefix, "ipv4_used_count", "number of used IP/prefixes in a IPv4 pool", labelNames)
+	c.usedCountDesc = description(prefix, "ipv6_used_count", "number of used IP/prefixes in a IPv6 pool", labelNames)
 }
 
-func newPoolCollector() routerOSCollector {
-	c := &poolCollector{}
+func newPoolV6Collector() routerOSCollector {
+	c := &poolv6Collector{}
 	c.init()
 	return c
 }
 
-func (c *poolCollector) describe(ch chan<- *prometheus.Desc) {
+func (c *poolv6Collector) describe(ch chan<- *prometheus.Desc) {
 	ch <- c.usedCountDesc
 }
 
-func (c *poolCollector) collect(ctx *collectorContext) error {
-	err := c.collectForIPVersion("4", "ip", ctx)
+func (c *poolv6Collector) collect(ctx *collectorContext) error {
+	err := c.collectForIPVersion("6", "ipv6", ctx)
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func (c *poolCollector) collect(ctx *collectorContext) error {
 	return nil
 }
 
-func (c *poolCollector) collectForIPVersion(ipVersion, topic string, ctx *collectorContext) error {
+func (c *poolv6Collector) collectForIPVersion(ipVersion, topic string, ctx *collectorContext) error {
 	names, err := c.fetchPoolNames(ipVersion, topic, ctx)
 	if err != nil {
 		return err
@@ -54,7 +54,7 @@ func (c *poolCollector) collectForIPVersion(ipVersion, topic string, ctx *collec
 	return nil
 }
 
-func (c *poolCollector) fetchPoolNames(ipVersion, topic string, ctx *collectorContext) ([]string, error) {
+func (c *poolv6Collector) fetchPoolNames(ipVersion, topic string, ctx *collectorContext) ([]string, error) {
 	reply, err := ctx.client.Run(fmt.Sprintf("/%s/pool/print", topic), "=.proplist=name")
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -72,7 +72,7 @@ func (c *poolCollector) fetchPoolNames(ipVersion, topic string, ctx *collectorCo
 	return names, nil
 }
 
-func (c *poolCollector) collectForPool(ipVersion, topic, pool string, ctx *collectorContext) error {
+func (c *poolv6Collector) collectForPool(ipVersion, topic, pool string, ctx *collectorContext) error {
 	reply, err := ctx.client.Run(fmt.Sprintf("/%s/pool/used/print", topic), fmt.Sprintf("?pool=%s", pool), "=count-only=")
 	if err != nil {
 		log.WithFields(log.Fields{

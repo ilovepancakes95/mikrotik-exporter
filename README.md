@@ -1,4 +1,4 @@
-[![Docker Pulls](https://img.shields.io/docker/pulls/nshttpd/mikrotik-exporter.svg)](https://hub.docker.com/r/nshttpd/mikrotik-exporter/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/ogi4i/mikrotik-exporter.svg)](https://hub.docker.com/r/ogi4i/mikrotik-exporter/)
 
 ## prometheus-mikrotik
 
@@ -59,8 +59,13 @@ features:
   dhcpv6: true
   dhcpl: true
   routes: true
-  pools: true
+  routesv6: true
+  pool: true
+  poolv6: true
   optics: true
+  wlanif: true
+  wlansta: true
+  monitor: true
 ```
 
 ###### example output

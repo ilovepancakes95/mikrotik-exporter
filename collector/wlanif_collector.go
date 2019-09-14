@@ -62,9 +62,9 @@ func (c *wlanIFCollector) fetchInterfaceNames(ctx *collectorContext) ([]string, 
 		return nil, err
 	}
 
-	names := []string{}
-	for _, re := range reply.Re {
-		names = append(names, re.Map["name"])
+	names := make([]string, len(reply.Re))
+	for i, re := range reply.Re {
+		names[i] = re.Map["name"]
 	}
 
 	return names, nil
@@ -93,16 +93,21 @@ func (c *wlanIFCollector) collectForInterface(iface string, ctx *collectorContex
 func (c *wlanIFCollector) collectMetricForProperty(property, iface string, re *proto.Sentence, ctx *collectorContext) {
 	desc := c.descriptions[property]
 	channel := re.Map["channel"]
+	registeredClients := re.Map["registered-clients"]
 
-	v, err := strconv.ParseFloat(re.Map[property], 64)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"property":  property,
-			"interface": iface,
-			"device":    ctx.device.Name,
-			"error":     err,
-		}).Error("error parsing interface metric value")
-		return
+	var v float64
+	if registeredClients != "0" {
+		var err error
+		v, err = strconv.ParseFloat(re.Map[property], 64)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"property":  property,
+				"interface": iface,
+				"device":    ctx.device.Name,
+				"error":     err,
+			}).Error("error parsing interface metric value")
+			return
+		}
 	}
 
 	ctx.ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, v, ctx.device.Name, ctx.device.Address, iface, channel)

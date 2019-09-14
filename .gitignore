@@ -20,4 +20,5 @@
 debug
 
 mikrotik-exporter
-test-config.yml
+*.yml
+*.tar

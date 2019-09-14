@@ -11,10 +11,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/nshttpd/mikrotik-exporter/config"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
-	routeros "gopkg.in/routeros.v2"
+	"gopkg.in/routeros.v2"
+	"mikrotik-exporter/config"
 )
 
 const (
@@ -56,10 +56,17 @@ func WithBGP() Option {
 	}
 }
 
-// WithRoutes enables routing table metrics
+// WithRoutes enables routing table(v4) metrics
 func WithRoutes() Option {
 	return func(c *collector) {
 		c.collectors = append(c.collectors, newRoutesCollector())
+	}
+}
+
+// WithRoutesV6 enables routing table(v6) metrics
+func WithRoutesV6() Option {
+	return func(c *collector) {
+		c.collectors = append(c.collectors, newRoutesV6Collector())
 	}
 }
 
@@ -77,21 +84,28 @@ func WithDHCPL() Option {
 	}
 }
 
-// WithDHCPv6 enables DHCPv6 serrver metrics
+// WithDHCPv6 enables DHCPv6 server metrics
 func WithDHCPv6() Option {
 	return func(c *collector) {
 		c.collectors = append(c.collectors, newDHCPv6Collector())
 	}
 }
 
-// WithPools enables IP(v6) pool metrics
-func WithPools() Option {
+// WithPool enables IP(v4) pool metrics
+func WithPool() Option {
 	return func(c *collector) {
 		c.collectors = append(c.collectors, newPoolCollector())
 	}
 }
 
-// WithOptics enables optical diagnstocs
+// WithPoolV6 enables IP(v6) pool metrics
+func WithPoolV6() Option {
+	return func(c *collector) {
+		c.collectors = append(c.collectors, newPoolV6Collector())
+	}
+}
+
+// WithOptics enables optical diagnostics
 func WithOptics() Option {
 	return func(c *collector) {
 		c.collectors = append(c.collectors, newOpticsCollector())
@@ -130,7 +144,9 @@ func WithTimeout(d time.Duration) Option {
 func WithTLS(insecure bool) Option {
 	return func(c *collector) {
 		c.enableTLS = true
-		c.insecureTLS = true
+		if insecure {
+			c.insecureTLS = true
+		}
 	}
 }
 

@@ -8,34 +8,34 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type routesCollector struct {
+type routesV6Collector struct {
 	protocols         []string
 	countDesc         *prometheus.Desc
 	countProtocolDesc *prometheus.Desc
 }
 
-func newRoutesCollector() routerOSCollector {
-	c := &routesCollector{}
+func newRoutesV6Collector() routerOSCollector {
+	c := &routesV6Collector{}
 	c.init()
 	return c
 }
 
-func (c *routesCollector) init() {
+func (c *routesV6Collector) init() {
 	const prefix = "routes"
 	labelNames := []string{"name", "address"}
-	c.countDesc = description(prefix, "ipv4_total_count", "number of IPv4 routes in RIB", labelNames)
-	c.countProtocolDesc = description(prefix, "ipv4_protocol_count", "number of IPv4 routes per protocol in RIB", append(labelNames, "protocol"))
+	c.countDesc = description(prefix, "ipv6_total_count", "number of IPv6 routes in RIB", labelNames)
+	c.countProtocolDesc = description(prefix, "ipv6_protocol_count", "number of IPv6 routes per protocol in RIB", append(labelNames, "protocol"))
 
 	c.protocols = []string{"bgp", "static", "ospf", "dynamic", "connect"}
 }
 
-func (c *routesCollector) describe(ch chan<- *prometheus.Desc) {
+func (c *routesV6Collector) describe(ch chan<- *prometheus.Desc) {
 	ch <- c.countDesc
 	ch <- c.countProtocolDesc
 }
 
-func (c *routesCollector) collect(ctx *collectorContext) error {
-	err := c.colllectForIPVersion("4", "ip", ctx)
+func (c *routesV6Collector) collect(ctx *collectorContext) error {
+	err := c.collectForIPVersion("6", "ipv6", ctx)
 	if err != nil {
 		return err
 	}
@@ -43,14 +43,14 @@ func (c *routesCollector) collect(ctx *collectorContext) error {
 	return nil
 }
 
-func (c *routesCollector) colllectForIPVersion(ipVersion, topic string, ctx *collectorContext) error {
-	err := c.colllectCount(ipVersion, topic, ctx)
+func (c *routesV6Collector) collectForIPVersion(ipVersion, topic string, ctx *collectorContext) error {
+	err := c.collectCount(ipVersion, topic, ctx)
 	if err != nil {
 		return err
 	}
 
 	for _, p := range c.protocols {
-		err := c.colllectCountProtcol(ipVersion, topic, p, ctx)
+		err := c.collectCountProtocol(ipVersion, topic, p, ctx)
 		if err != nil {
 			return err
 		}
@@ -59,7 +59,7 @@ func (c *routesCollector) colllectForIPVersion(ipVersion, topic string, ctx *col
 	return nil
 }
 
-func (c *routesCollector) colllectCount(ipVersion, topic string, ctx *collectorContext) error {
+func (c *routesV6Collector) collectCount(ipVersion, topic string, ctx *collectorContext) error {
 	reply, err := ctx.client.Run(fmt.Sprintf("/%s/route/print", topic), "?disabled=false", "=count-only=")
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -84,7 +84,7 @@ func (c *routesCollector) colllectCount(ipVersion, topic string, ctx *collectorC
 	return nil
 }
 
-func (c *routesCollector) colllectCountProtcol(ipVersion, topic, protocol string, ctx *collectorContext) error {
+func (c *routesV6Collector) collectCountProtocol(ipVersion, topic, protocol string, ctx *collectorContext) error {
 	reply, err := ctx.client.Run(fmt.Sprintf("/%s/route/print", topic), "?disabled=false", fmt.Sprintf("?%s", protocol), "=count-only=")
 	if err != nil {
 		log.WithFields(log.Fields{

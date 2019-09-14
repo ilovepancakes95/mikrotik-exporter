@@ -11,11 +11,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/nshttpd/mikrotik-exporter/collector"
-	"github.com/nshttpd/mikrotik-exporter/config"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
+	"mikrotik-exporter/collector"
+	"mikrotik-exporter/config"
 )
 
 // single device can be defined via CLI flags, multiple via config file.
@@ -34,15 +34,18 @@ var (
 	user        = flag.String("user", "", "user for authentication with single device")
 	ver         = flag.Bool("version", false, "find the version of binary")
 
-	withBgp     = flag.Bool("with-bgp", false, "retrieves BGP routing infrormation")
-	withRoutes  = flag.Bool("with-routes", false, "retrieves routing table information")
-	withDHCP    = flag.Bool("with-dhcp", false, "retrieves DHCP server metrics")
-	withDHCPv6  = flag.Bool("with-dhcpv6", false, "retrieves DHCPv6 server metrics")
-	withPools   = flag.Bool("with-pools", false, "retrieves IP(v6) pool metrics")
-	withOptics  = flag.Bool("with-optics", false, "retrieves optical diagnostic metrics")
-	withWlanSTA = flag.Bool("with-wlansta", false, "retrieves connected wlan station metrics")
-	withWlanIF  = flag.Bool("with-wlanif", false, "retrieves wlan interface metrics")
-	withMonitor = flag.Bool("with-monitor", false, "retrieves ethernet interface monitor info")
+	withBgp        = flag.Bool("with-bgp", false, "retrieves BGP routing infrormation")
+	withRoutes     = flag.Bool("with-routes", false, "retrieves routing table(v4) information")
+	withRoutesV6   = flag.Bool("with-routesv6", false, "retrieves routing table(v6) information")
+	withDHCP       = flag.Bool("with-dhcp", false, "retrieves DHCP server metrics")
+	withDHCPLeases = flag.Bool("with-dhcp-leases", false, "retrieves DHCP leases metrics")
+	withDHCPv6     = flag.Bool("with-dhcpv6", false, "retrieves DHCPv6 server metrics")
+	withPool       = flag.Bool("with-pool", false, "retrieves IP(v4) pool metrics")
+	withPoolV6     = flag.Bool("with-poolv6", false, "retrieves IP(v6) pool metrics")
+	withOptics     = flag.Bool("with-optics", false, "retrieves optical diagnostic metrics")
+	withWlanSTA    = flag.Bool("with-wlansta", false, "retrieves connected wlan station metrics")
+	withWlanIF     = flag.Bool("with-wlanif", false, "retrieves wlan interface metrics")
+	withMonitor    = flag.Bool("with-monitor", false, "retrieves ethernet interface monitor info")
 
 	cfg *config.Config
 
@@ -112,13 +115,12 @@ func loadConfigFromFlags() (*config.Config, error) {
 	}
 
 	return &config.Config{
-		Devices: []config.Device{
-			config.Device{
-				Name:     *device,
-				Address:  *address,
-				User:     *user,
-				Password: *password,
-			},
+		Devices: []config.Device{{
+			Name:     *device,
+			Address:  *address,
+			User:     *user,
+			Password: *password,
+		},
 		},
 	}, nil
 }
@@ -179,27 +181,39 @@ func collectorOptions() []collector.Option {
 		opts = append(opts, collector.WithRoutes())
 	}
 
+	if *withRoutesV6 || cfg.Features.RoutesV6 {
+		opts = append(opts, collector.WithRoutesV6())
+	}
+
 	if *withDHCP || cfg.Features.DHCP {
 		opts = append(opts, collector.WithDHCP())
+	}
+
+	if *withDHCPLeases || cfg.Features.DHCPLeases {
+		opts = append(opts, collector.WithDHCPL())
 	}
 
 	if *withDHCPv6 || cfg.Features.DHCPv6 {
 		opts = append(opts, collector.WithDHCPv6())
 	}
 
-	if *withPools || cfg.Features.Pools {
-		opts = append(opts, collector.WithPools())
+	if *withPool || cfg.Features.Pool {
+		opts = append(opts, collector.WithPool())
+	}
+
+	if *withPoolV6 || cfg.Features.PoolV6 {
+		opts = append(opts, collector.WithPoolV6())
 	}
 
 	if *withOptics || cfg.Features.Optics {
 		opts = append(opts, collector.WithOptics())
 	}
 
-	if *withWlanSTA || cfg.Features.WlanSTA {
+	if *withWlanSTA || cfg.Features.WlanStations {
 		opts = append(opts, collector.WithWlanSTA())
 	}
 
-	if *withWlanIF || cfg.Features.WlanIF {
+	if *withWlanIF || cfg.Features.WlanInterfaces {
 		opts = append(opts, collector.WithWlanIF())
 	}
 

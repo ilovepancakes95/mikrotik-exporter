@@ -21,16 +21,18 @@ func TestShouldParse(t *testing.T) {
 	assertDevice("test2", "192.168.2.1", "test", "123", c.Devices[1], t)
 	assertFeature("BGP", c.Features.BGP, t)
 	assertFeature("DHCP", c.Features.DHCP, t)
-	assertFeature("DHCPv6", c.Features.DHCPv6, t)
-	assertFeature("Pools", c.Features.Pools, t)
+	assertNoFeature("DHCPv6", c.Features.DHCPv6, t)
+	assertFeature("Pool", c.Features.Pool, t)
+	assertNoFeature("PoolV6", c.Features.PoolV6, t)
 	assertFeature("Routes", c.Features.Routes, t)
+	assertNoFeature("RoutesV6", c.Features.RoutesV6, t)
 	assertFeature("Optics", c.Features.Optics, t)
-	assertFeature("WlanSTA", c.Features.WlanSTA, t)
-	assertFeature("WlanIF", c.Features.WlanIF, t)
+	assertFeature("WlanStations", c.Features.WlanStations, t)
+	assertFeature("WlanInterfaces", c.Features.WlanInterfaces, t)
 }
 
 func loadTestFile(t *testing.T) []byte {
-	b, err := ioutil.ReadFile("test/config.test.yml")
+	b, err := ioutil.ReadFile("config.test.yml")
 	if err != nil {
 		t.Fatalf("could not load config: %v", err)
 	}
@@ -58,6 +60,12 @@ func assertDevice(name, address, user, password string, c Device, t *testing.T) 
 
 func assertFeature(name string, v bool, t *testing.T) {
 	if !v {
-		t.Fatalf("exprected feature %s to be enabled", name)
+		t.Fatalf("expected feature %s to be enabled", name)
+	}
+}
+
+func assertNoFeature(name string, v bool, t *testing.T) {
+	if v {
+		t.Fatalf("expected feature %s to be disabled", name)
 	}
 }

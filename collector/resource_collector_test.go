@@ -4,9 +4,9 @@ import (
 	"testing"
 )
 
-func TestParseUptime(t *testing.T) {
+func TestParseDuration(t *testing.T) {
 
-	uptimes := []struct {
+	durations := []struct {
 		u string
 		v float64
 	}{
@@ -16,13 +16,13 @@ func TestParseUptime(t *testing.T) {
 		{"7w6d9h34m", 4786440},
 	}
 
-	for _, uptime := range uptimes {
-		seconds, err := parseUptime(uptime.u)
+	for _, duration := range durations {
+		seconds, err := parseDuration(duration.u)
 		if err != nil {
 			t.Error(err)
 		}
-		if seconds != uptime.v {
-			t.Errorf("seconds : %f != v : %f\n", seconds, uptime.v)
+		if seconds != duration.v {
+			t.Errorf("seconds : %f != v : %f\n", seconds, duration.v)
 		}
 	}
 }

@@ -1,10 +1,11 @@
 package collector
 
 import (
-	"strings"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/routeros.v2/proto"
+	"strconv"
+	"strings"
 )
 
 type dhcpLeaseCollector struct {
@@ -59,11 +60,21 @@ func (c *dhcpLeaseCollector) fetch(ctx *collectorContext) ([]*proto.Sentence, er
 func (c *dhcpLeaseCollector) collectMetric(ctx *collectorContext, re *proto.Sentence) {
 	v := 1.0
 
+	f, err := parseDuration(re.Map["expires-after"])
+	if err != nil {
+		log.WithFields(log.Fields{
+			"device":   ctx.device.Name,
+			"property": "expires-after",
+			"value":    re.Map["expires-after"],
+			"error":    err,
+		}).Error("error parsing duration metric value")
+		return
+	}
+
 	activemacaddress := re.Map["active-mac-address"]
 	status := re.Map["status"]
-	expiresafter := re.Map["expires-after"]
 	activeaddress := re.Map["active-address"]
 	hostname := re.Map["host-name"]
 
-	ctx.ch <- prometheus.MustNewConstMetric(c.descriptions, prometheus.CounterValue, v, ctx.device.Name, ctx.device.Address, activemacaddress, status, expiresafter, activeaddress, hostname)
+	ctx.ch <- prometheus.MustNewConstMetric(c.descriptions, prometheus.CounterValue, v, ctx.device.Name, ctx.device.Address, activemacaddress, status, strconv.FormatFloat(f, 'f', 0, 64), activeaddress, hostname)
 }

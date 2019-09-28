@@ -142,6 +142,3 @@ func (c *interfaceCollector) collectMetricForProperty(property, iface, comment, 
 		ctx.ch <- prometheus.MustNewConstMetric(desc, valueType, v, ctx.device.Name, ctx.device.Address, iface, comment, macAddress, interfaceType)
 	}
 }
-
-func (c *interfaceCollector) collectCurrentDatetime(ctx *collectorContext) {
-}

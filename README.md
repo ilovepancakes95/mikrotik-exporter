@@ -63,8 +63,8 @@ features:
   pool: true
   poolv6: true
   optics: true
-  wlanif: true
-  wlansta: true
+  wlan-interfaces: true
+  wlan-stations: true
   monitor: true
 ```
 

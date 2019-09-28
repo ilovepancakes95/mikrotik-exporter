@@ -14,10 +14,13 @@ import (
 
 var durationRegex *regexp.Regexp
 var durationParts [5]time.Duration
+var wirelessRateRegex *regexp.Regexp
 
 func init() {
 	durationRegex = regexp.MustCompile(`(?:(\d*)w)?(?:(\d*)d)?(?:(\d*)h)?(?:(\d*)m)?(?:(\d*)s)?`)
 	durationParts = [5]time.Duration{time.Hour * 168, time.Hour * 24, time.Hour, time.Minute, time.Second}
+
+	wirelessRateRegex = regexp.MustCompile(`([\d.]+)Mbps.+`)
 }
 
 func metricStringCleanup(in string) string {
@@ -95,4 +98,27 @@ func parseDatetime(datetime string) (time.Time, error) {
 	}
 
 	return t, nil
+}
+
+func parseWirelessRate(rate string) (float64, error) {
+	reMatch := wirelessRateRegex.FindStringSubmatch(rate)
+
+	// should get one and only one match back on the regex
+	if len(reMatch) != 2 {
+		return 0, fmt.Errorf("invalid wireless rate value sent to regex")
+	} else {
+		if reMatch[1] != "" {
+			v, err := strconv.ParseFloat(reMatch[1], 64)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"wireless-rate": rate,
+					"value":         reMatch[1],
+					"error":         err,
+				}).Error("error parsing wireless rate field value")
+				return 0, err
+			}
+			return v, nil
+		}
+	}
+	return 0, nil
 }

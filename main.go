@@ -46,6 +46,7 @@ var (
 	withWlanSTA    = flag.Bool("with-wlansta", false, "retrieves connected wlan station metrics")
 	withWlanIF     = flag.Bool("with-wlanif", false, "retrieves wlan interface metrics")
 	withMonitor    = flag.Bool("with-monitor", false, "retrieves ethernet interface monitor info")
+	withIPSecPeers = flag.Bool("with-ipsec-peers", false, "retrieves ipsec peers info")
 
 	cfg *config.Config
 
@@ -218,8 +219,11 @@ func collectorOptions() []collector.Option {
 	}
 
 	if *withMonitor || cfg.Features.Monitor {
-		opts = append(opts, collector.Monitor())
+		opts = append(opts, collector.WithMonitor())
+	}
 
+	if *withIPSecPeers || cfg.Features.IPSecPeers {
+		opts = append(opts, collector.WithIPSecPeers())
 	}
 
 	if *timeout != collector.DefaultTimeout {

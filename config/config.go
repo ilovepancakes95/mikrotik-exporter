@@ -23,6 +23,7 @@ type Config struct {
 		WlanStations   bool `yaml:"wlan-stations,omitempty"`
 		WlanInterfaces bool `yaml:"wlan-interfaces,omitempty"`
 		Monitor        bool `yaml:"monitor,omitempty"`
+		IPSecPeers     bool `yaml:"ipsec-peers,omitempty"`
 	} `yaml:"features,omitempty"`
 }
 

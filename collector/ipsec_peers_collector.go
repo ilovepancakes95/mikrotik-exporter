@@ -59,7 +59,7 @@ func (c *ipsecPeersCollector) fetch(ctx *collectorContext) ([]*proto.Sentence, e
 		log.WithFields(log.Fields{
 			"device": ctx.device.Name,
 			"error":  err,
-		}).Error("error fetching ipsec metrics")
+		}).Error("error fetching ipsec peers metrics")
 		return nil, err
 	}
 
@@ -86,7 +86,7 @@ func (c *ipsecPeersCollector) collectMetricForProperty(property, id, remoteAddre
 			"property": property,
 			"value":    re.Map[property],
 			"error":    err,
-		}).Error("error parsing ipsec metric value")
+		}).Error("error parsing ipsec peers metric value")
 		return
 	}
 

@@ -24,6 +24,7 @@ type Config struct {
 		WlanInterfaces bool `yaml:"wlan-interfaces,omitempty"`
 		Monitor        bool `yaml:"monitor,omitempty"`
 		IPSecPeers     bool `yaml:"ipsec-peers,omitempty"`
+		OSPFNeighbor   bool `yaml:"ospf-neighbor,omitempty"`
 	} `yaml:"features,omitempty"`
 }
 

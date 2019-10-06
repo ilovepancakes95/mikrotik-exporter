@@ -140,6 +140,13 @@ func WithIPSecPeers() Option {
 	}
 }
 
+// WithOSPFNeighbor enables OSPF neighbor collector metrics
+func WithOSPFNeighbor() Option {
+	return func(c *collector) {
+		c.collectors = append(c.collectors, newOSPFNeighborCollector())
+	}
+}
+
 // WithTimeout sets timeout for connecting to router
 func WithTimeout(d time.Duration) Option {
 	return func(c *collector) {

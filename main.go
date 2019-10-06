@@ -34,19 +34,20 @@ var (
 	user        = flag.String("user", "", "user for authentication with single device")
 	ver         = flag.Bool("version", false, "find the version of binary")
 
-	withBgp        = flag.Bool("with-bgp", false, "retrieves BGP routing infrormation")
-	withRoutes     = flag.Bool("with-routes", false, "retrieves routing table(v4) information")
-	withRoutesV6   = flag.Bool("with-routesv6", false, "retrieves routing table(v6) information")
-	withDHCP       = flag.Bool("with-dhcp", false, "retrieves DHCP server metrics")
-	withDHCPLeases = flag.Bool("with-dhcp-leases", false, "retrieves DHCP leases metrics")
-	withDHCPv6     = flag.Bool("with-dhcpv6", false, "retrieves DHCPv6 server metrics")
-	withPool       = flag.Bool("with-pool", false, "retrieves IP(v4) pool metrics")
-	withPoolV6     = flag.Bool("with-poolv6", false, "retrieves IP(v6) pool metrics")
-	withOptics     = flag.Bool("with-optics", false, "retrieves optical diagnostic metrics")
-	withWlanSTA    = flag.Bool("with-wlansta", false, "retrieves connected wlan station metrics")
-	withWlanIF     = flag.Bool("with-wlanif", false, "retrieves wlan interface metrics")
-	withMonitor    = flag.Bool("with-monitor", false, "retrieves ethernet interface monitor info")
-	withIPSecPeers = flag.Bool("with-ipsec-peers", false, "retrieves ipsec peers info")
+	withBgp          = flag.Bool("with-bgp", false, "retrieves BGP routing infrormation")
+	withRoutes       = flag.Bool("with-routes", false, "retrieves routing table(v4) information")
+	withRoutesV6     = flag.Bool("with-routesv6", false, "retrieves routing table(v6) information")
+	withDHCP         = flag.Bool("with-dhcp", false, "retrieves DHCP server metrics")
+	withDHCPLeases   = flag.Bool("with-dhcp-leases", false, "retrieves DHCP leases metrics")
+	withDHCPv6       = flag.Bool("with-dhcpv6", false, "retrieves DHCPv6 server metrics")
+	withPool         = flag.Bool("with-pool", false, "retrieves IP(v4) pool metrics")
+	withPoolV6       = flag.Bool("with-poolv6", false, "retrieves IP(v6) pool metrics")
+	withOptics       = flag.Bool("with-optics", false, "retrieves optical diagnostic metrics")
+	withWlanSTA      = flag.Bool("with-wlansta", false, "retrieves connected wlan station metrics")
+	withWlanIF       = flag.Bool("with-wlanif", false, "retrieves wlan interface metrics")
+	withMonitor      = flag.Bool("with-monitor", false, "retrieves ethernet interface monitor info")
+	withIPSecPeers   = flag.Bool("with-ipsec-peers", false, "retrieves ipsec peers info")
+	withOSPFNeighbor = flag.Bool("with-ospf-neighbor", false, "retrieves ospf neighbor info")
 
 	cfg *config.Config
 
@@ -224,6 +225,10 @@ func collectorOptions() []collector.Option {
 
 	if *withIPSecPeers || cfg.Features.IPSecPeers {
 		opts = append(opts, collector.WithIPSecPeers())
+	}
+
+	if *withOSPFNeighbor || cfg.Features.OSPFNeighbor {
+		opts = append(opts, collector.WithOSPFNeighbor())
 	}
 
 	if *timeout != collector.DefaultTimeout {

@@ -27,7 +27,6 @@ func (c *ipsecPeersCollector) init() {
 	labelNames := []string{"name", "address", "id", "remote_address", "state"}
 
 	c.descriptions = make(map[string]*prometheus.Desc)
-	c.descriptions["state"] = description(prefix, "up", "IPSec connection with peer is established (up = 1)", labelNames)
 
 	for _, p := range c.props[3:] {
 		c.descriptions[p] = descriptionForPropertyName(prefix, p, labelNames)
@@ -71,7 +70,7 @@ func (c *ipsecPeersCollector) collectForStat(re *proto.Sentence, ctx *collectorC
 	id := re.Map["id"]
 	state := re.Map["state"]
 
-	for _, p := range c.props[2:] {
+	for _, p := range c.props[3:] {
 		c.collectMetricForProperty(p, id, remoteAddress, state, re, ctx)
 	}
 }

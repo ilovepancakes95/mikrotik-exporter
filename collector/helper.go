@@ -20,7 +20,7 @@ func init() {
 	durationRegex = regexp.MustCompile(`(?:(\d*)w)?(?:(\d*)d)?(?:(\d*)h)?(?:(\d*)m)?(?:(\d*)s)?`)
 	durationParts = [5]time.Duration{time.Hour * 168, time.Hour * 24, time.Hour, time.Minute, time.Second}
 
-	wirelessRateRegex = regexp.MustCompile(`([\d.]+)Mbps.+`)
+	wirelessRateRegex = regexp.MustCompile(`([\d.]+)Mbps.*`)
 }
 
 func metricStringCleanup(in string) string {

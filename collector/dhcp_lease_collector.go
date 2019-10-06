@@ -14,9 +14,9 @@ type dhcpLeaseCollector struct {
 }
 
 func (c *dhcpLeaseCollector) init() {
-	c.props = []string{"active-mac-address", "status", "expires-after", "active-address", "host-name"}
+	c.props = []string{"active-mac-address", "server", "status", "expires-after", "active-address", "host-name"}
 
-	labelNames := []string{"name", "address", "active_mac_address", "status", "expires_after", "active_address", "hostname"}
+	labelNames := []string{"name", "address", "active_mac_address", "server", "status", "expires_after", "active_address", "hostname"}
 	c.descriptions = description("dhcp", "leases_info", "DHCP lease info", labelNames)
 
 }
@@ -45,7 +45,7 @@ func (c *dhcpLeaseCollector) collect(ctx *collectorContext) error {
 }
 
 func (c *dhcpLeaseCollector) fetch(ctx *collectorContext) ([]*proto.Sentence, error) {
-	reply, err := ctx.client.Run("/ip/dhcp-server/lease/print", "=.proplist="+strings.Join(c.props, ","))
+	reply, err := ctx.client.Run("/ip/dhcp-server/lease/print", "?status=bound", "=.proplist="+strings.Join(c.props, ","))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"device": ctx.device.Name,
@@ -72,9 +72,10 @@ func (c *dhcpLeaseCollector) collectMetric(ctx *collectorContext, re *proto.Sent
 	}
 
 	activemacaddress := re.Map["active-mac-address"]
+	server := re.Map["server"]
 	status := re.Map["status"]
 	activeaddress := re.Map["active-address"]
 	hostname := re.Map["host-name"]
 
-	ctx.ch <- prometheus.MustNewConstMetric(c.descriptions, prometheus.GaugeValue, v, ctx.device.Name, ctx.device.Address, activemacaddress, status, strconv.FormatFloat(f, 'f', 0, 64), activeaddress, hostname)
+	ctx.ch <- prometheus.MustNewConstMetric(c.descriptions, prometheus.GaugeValue, v, ctx.device.Name, ctx.device.Address, activemacaddress, server, status, strconv.FormatFloat(f, 'f', 0, 64), activeaddress, hostname)
 }

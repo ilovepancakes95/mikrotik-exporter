@@ -57,7 +57,7 @@ features:
   bgp: true
   dhcp: true
   dhcpv6: true
-  dhcpl: true
+  dhcp-leases: true
   routes: true
   routesv6: true
   pool: true
@@ -66,6 +66,8 @@ features:
   wlan-interfaces: true
   wlan-stations: true
   monitor: true
+  ipsec-peers: true
+  ospf-neighbor: true
 ```
 
 ###### example output

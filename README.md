@@ -1,4 +1,4 @@
-[![Docker Pulls](https://img.shields.io/docker/pulls/ogi4i/mikrotik-exporter.svg)](https://hub.docker.com/r/ogi4i/mikrotik-exporter/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/ogi4i/mikrotik-exporter.svg)](https://hub.docker.com/r/ilovepancakes/mikrotik-exporter)
 
 ## prometheus-mikrotik
 
